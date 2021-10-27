@@ -36,9 +36,9 @@ class IDEA {
         codeWriter.flush()
 
         val keyWriter = File("key").writer()
-        key.forEach { keys ->
-            keyWriter.write(String(keys.map { short -> Char(short) }.toCharArray()))
-        }
+        keyWriter.write(String(key[0].map { short -> Char(short) }.toCharArray()))
+        keyWriter.write(Char(key[1][0]).toString())
+        keyWriter.write(Char(key[1][1]).toString())
         keyWriter.flush()
     }
 
@@ -84,8 +84,8 @@ class IDEA {
     }
 
     fun decode(codeReader: BufferedReader, keyReader: BufferedReader) {
-        var keyString = CharArray(8)
-        val readSymbols = keyReader.read(keyString)
+        val keyString = CharArray(8)
+        var readSymbols = keyReader.read(keyString)
         if (readSymbols != 8) {
             throw RuntimeException("bad key file")
         }
@@ -93,6 +93,30 @@ class IDEA {
             keyString[position].code.toShort().toUShort()
         }
         val decodingKey = keyGenerator.generateDecodingKey(inputKey)
-        TODO()
+
+        val decodedText = mutableListOf<UShort>()
+        var text = CharArray(4)
+        readSymbols = codeReader.read(text)
+        do {
+            var data = List(4) { position ->
+                if(position + 1 > readSymbols) {
+                    UShort.MIN_VALUE
+                } else {
+                    text[position].code.toUShort()
+                }
+            }
+            for (round in 0..7) {
+                data = codeRound(decodingKey[round], data)
+                println(data)
+            }
+            data = finalOperations(decodingKey[8], data)
+            decodedText.addAll(data)
+            text = CharArray(4)
+            readSymbols = codeReader.read(text)
+        } while (readSymbols > 0)
+
+        val textWriter = File("decodedText").writer()
+        textWriter.write(String(decodedText.map { short -> Char(short) }.toCharArray()))
+        textWriter.flush()
     }
 }

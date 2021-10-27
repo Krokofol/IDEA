@@ -1,5 +1,6 @@
 package lab
 
+import java.lang.RuntimeException
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.random.Random
@@ -17,8 +18,34 @@ class KeyGenerator {
     }
 
     fun generateDecodingKey(input: List<UShort>): List<List<UShort>> {
-
-        TODO()
+        val codingKey = generateKey(input)
+        return List(9) { layer ->
+            List(codingKey[layer].size) { position ->
+                when(position + 1) {
+                    1, 4 -> {
+                        findMultiplicativeInversion(codingKey[8 - layer][position])
+                    }
+                    2 -> {
+                        when(layer) {
+                            0, 8 -> findInversion(codingKey[8 - layer][position])
+                            else -> findInversion(codingKey[8 - layer][position + 1])
+                        }
+                    }
+                    3 -> {
+                        when(layer) {
+                            0, 8 -> findInversion(codingKey[8 - layer][position])
+                            else -> findInversion(codingKey[8 - layer][position - 1])
+                        }
+                    }
+                    5, 6 -> {
+                        codingKey[7 - layer][position]
+                    }
+                    else -> {
+                        throw RuntimeException("unexpected position")
+                    }
+                }
+            }
+        }
     }
 
     private fun generateKey(input: List<UShort>): List<List<UShort>> {
@@ -42,4 +69,15 @@ class KeyGenerator {
 
     private fun generateUByte(position: Int, previousLayer: List<UShort>): UShort =
         ((previousLayer[(position + 1) % previousLayer.size].toInt() shl 9) + (previousLayer[(position + 2) % previousLayer.size].toInt() shr 7)).toUShort()
+
+    private fun findMultiplicativeInversion(a: UShort): UShort {
+        for (i in 0L..65537L) {
+            if ((a.toLong() * i) % 65537 == 1L) return i.toUShort()
+        }
+        throw RuntimeException("was not found multiplicative inversion")
+    }
+
+    private fun findInversion(a: UShort): UShort {
+        return (65536 - a.toInt()).toUShort()
+    }
 }
