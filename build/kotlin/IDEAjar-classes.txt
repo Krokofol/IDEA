@@ -1,1 +1,0 @@
-C:\Users\Aleksey\Documents\github\nsu\IDEA\build\classes\kotlin\main\lab\IDEA$Action.class;C:\Users\Aleksey\Documents\github\nsu\IDEA\build\classes\kotlin\main\lab\IDEA$Companion.class;C:\Users\Aleksey\Documents\github\nsu\IDEA\build\classes\kotlin\main\lab\IDEA$WhenMappings.class;C:\Users\Aleksey\Documents\github\nsu\IDEA\build\classes\kotlin\main\lab\IDEA.class
