@@ -9,23 +9,27 @@ class KeyGenerator {
     private val random = Random(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
 
     fun generateNewKey(): List<List<UShort>> {
-        val result = MutableList(1) {
-            List(8) { position ->
-                (position + 1).toUShort()
-//                random.nextInt().toUShort()
-            }
+        val firstKeyLayer = List(8) { position ->
+            (position + 1).toUShort()
+//            random.nextInt().toUShort()
         }
-        return generateKey(result)
+        return generateKey(firstKeyLayer)
     }
 
-    private fun generateKey(input: MutableList<List<UShort>>): List<List<UShort>> {
+    fun generateDecodingKey(input: List<UShort>): List<List<UShort>> {
+
+        TODO()
+    }
+
+    private fun generateKey(input: List<UShort>): List<List<UShort>> {
+        val result = mutableListOf(input)
         for (i in 2..7) {
-            input.add(generateNextKeyLayer(input.last()))
+            result.add(generateNextKeyLayer(result.last()))
         }
         return List(9) { y ->
             val size = if (y == 8) 4 else 6
             List(size) { x ->
-                input[(x + y * 6) / 8][(x + y * 6) % 8]
+                result[(x + y * 6) / 8][(x + y * 6) % 8]
             }
         }
     }

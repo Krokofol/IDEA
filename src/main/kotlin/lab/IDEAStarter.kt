@@ -13,7 +13,7 @@ class IDEAStarter {
     fun start(args: Array<String>) {
         when (args.size) {
             1 -> idea.code(BufferedReader(FileReader(args[0])))
-            2 -> idea.decode(Scanner(FileReader(args[0])), Scanner(FileReader(args[1])))
+            2 -> idea.decode(BufferedReader(FileReader(args[0])), BufferedReader(FileReader(args[1])))
             else -> {
                 println("Wrong args")
                 startWithoutArgs()
@@ -51,7 +51,7 @@ class IDEAStarter {
                     println("Enter your key file name (with format)")
                     keyFileName = scanner.nextLine()
                 }
-                idea.decode(Scanner(FileReader(codeFileName)), Scanner(FileReader(keyFileName)))
+                idea.decode(BufferedReader(FileReader(codeFileName)), BufferedReader(FileReader(keyFileName)))
             }
         }
     }

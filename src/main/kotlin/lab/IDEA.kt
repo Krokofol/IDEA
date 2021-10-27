@@ -2,7 +2,7 @@ package lab
 
 import java.io.BufferedReader
 import java.io.File
-import java.util.*
+import java.lang.RuntimeException
 
 class IDEA {
 
@@ -83,7 +83,16 @@ class IDEA {
         return if (result == 65536L) 0 else result
     }
 
-    fun decode(codeReader: Scanner, keyReader: Scanner) {
+    fun decode(codeReader: BufferedReader, keyReader: BufferedReader) {
+        var keyString = CharArray(8)
+        val readSymbols = keyReader.read(keyString)
+        if (readSymbols != 8) {
+            throw RuntimeException("bad key file")
+        }
+        val inputKey = List(8) { position ->
+            keyString[position].code.toShort().toUShort()
+        }
+        val decodingKey = keyGenerator.generateDecodingKey(inputKey)
         TODO()
     }
 }
