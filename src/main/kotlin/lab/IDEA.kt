@@ -79,6 +79,7 @@ object IDEA {
     }
 
     fun decode(codeReader: BufferedReader, keyReader: BufferedReader) {
+        val textWriter = File("decodedText").writer()
         val keyString = CharArray(8)
         var readSymbols = keyReader.read(keyString)
         if (readSymbols != 8) {
@@ -88,16 +89,14 @@ object IDEA {
             keyString[position].code.toShort().toUShort()
         }
         val decodingKey = KeyGenerator.generateDecodingKey(inputKey)
-
-        val decodedText = mutableListOf<UShort>()
-        var text = CharArray(4)
-        readSymbols = codeReader.read(text)
+        var codedText = CharArray(4)
+        readSymbols = codeReader.read(codedText)
         do {
             var data = List(4) { position ->
                 if(position + 1 > readSymbols) {
                     UShort.MIN_VALUE
                 } else {
-                    text[position].code.toUShort()
+                    codedText[position].code.toUShort()
                 }
             }
             for (round in 0..7) {
@@ -105,13 +104,10 @@ object IDEA {
                 println(data)
             }
             data = finalOperations(decodingKey[8], data)
-            decodedText.addAll(data)
-            text = CharArray(4)
-            readSymbols = codeReader.read(text)
+            textWriter.write(String(data.map { short -> Char(short) }.toCharArray()))
+            textWriter.flush()
+            codedText = CharArray(4)
+            readSymbols = codeReader.read(codedText)
         } while (readSymbols > 0)
-
-        val textWriter = File("decodedText").writer()
-        textWriter.write(String(decodedText.map { short -> Char(short) }.toCharArray()))
-        textWriter.flush()
     }
 }
