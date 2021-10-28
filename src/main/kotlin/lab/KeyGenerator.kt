@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.random.Random
 
-class KeyGenerator {
+object KeyGenerator {
 
     private val random = Random(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
 

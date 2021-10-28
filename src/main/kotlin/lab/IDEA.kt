@@ -4,13 +4,16 @@ import java.io.BufferedReader
 import java.io.File
 import java.lang.RuntimeException
 
-class IDEA {
-
-    private val keyGenerator = KeyGenerator()
-
+object IDEA {
     fun code(textReader: BufferedReader) {
-        val code = mutableListOf<UShort>()
-        val key = keyGenerator.generateNewKey()
+        val keyWriter = File("key").writer()
+        val codeWriter = File("code").writer()
+
+        val key = KeyGenerator.generateNewKey()
+        keyWriter.write(String(key[0].map { short -> Char(short) }.toCharArray()))
+        keyWriter.write(Char(key[1][0]).toString())
+        keyWriter.write(Char(key[1][1]).toString())
+        keyWriter.flush()
         var text = CharArray(4)
         var readSymbols = textReader.read(text)
         do {
@@ -26,20 +29,12 @@ class IDEA {
                 println(data)
             }
             data = finalOperations(key[8], data)
-            code.addAll(data)
+            codeWriter.write(String(data.map { Char(it) }.toCharArray()))
+            codeWriter.flush()
+
             text = CharArray(4)
             readSymbols = textReader.read(text)
         } while (readSymbols > 0)
-
-        val codeWriter = File("code").writer()
-        codeWriter.write(String(code.map { Char(it) }.toCharArray()))
-        codeWriter.flush()
-
-        val keyWriter = File("key").writer()
-        keyWriter.write(String(key[0].map { short -> Char(short) }.toCharArray()))
-        keyWriter.write(Char(key[1][0]).toString())
-        keyWriter.write(Char(key[1][1]).toString())
-        keyWriter.flush()
     }
 
     private fun codeRound(k: List<UShort>, d: List<UShort>): List<UShort> {
@@ -92,7 +87,7 @@ class IDEA {
         val inputKey = List(8) { position ->
             keyString[position].code.toShort().toUShort()
         }
-        val decodingKey = keyGenerator.generateDecodingKey(inputKey)
+        val decodingKey = KeyGenerator.generateDecodingKey(inputKey)
 
         val decodedText = mutableListOf<UShort>()
         var text = CharArray(4)
