@@ -1,35 +1,29 @@
 package lab
 
-import java.io.BufferedReader
 import java.io.File
-import java.lang.RuntimeException
 
 class IDEA {
 
     private val keyGenerator = KeyGenerator()
 
-    fun code(textReader: BufferedReader) {
+    fun code(text: String) {
         val code = mutableListOf<UShort>()
-        val key = keyGenerator.generateNewKey()
-        var text = CharArray(4)
-        var readSymbols = textReader.read(text)
+        var key = keyGenerator.generateStandardKey()
+        var result: List<UShort>
+        var position = 0
         do {
-            var data = List(4) { position ->
-                if(position + 1 > readSymbols) {
-                    UShort.MIN_VALUE
-                } else {
-                    text[position].code.toUShort()
-                }
+            var data = List(4) {
+                position++
+                text.getOrNull(position)?.code?.toUShort() ?: UShort.MIN_VALUE
             }
             for (round in 0..7) {
                 data = codeRound(key[round], data)
                 println(data)
             }
-            data = finalOperations(key[8], data)
+            result = finalOperations(key[8], data)
             code.addAll(data)
-            text = CharArray(4)
-            readSymbols = textReader.read(text)
-        } while (readSymbols > 0)
+            key = keyGenerator.generateKey(result)
+        } while (position <= text.length)
 
         val codeWriter = File("code").writer()
         codeWriter.write(String(code.map { Char(it) }.toCharArray()))
@@ -81,42 +75,5 @@ class IDEA {
         val b1 = if (b == 0L) 65536L else b
         val result =  (a1 * b1) % (65537L)
         return if (result == 65536L) 0 else result
-    }
-
-    fun decode(codeReader: BufferedReader, keyReader: BufferedReader) {
-        val keyString = CharArray(8)
-        var readSymbols = keyReader.read(keyString)
-        if (readSymbols != 8) {
-            throw RuntimeException("bad key file")
-        }
-        val inputKey = List(8) { position ->
-            keyString[position].code.toShort().toUShort()
-        }
-        val decodingKey = keyGenerator.generateDecodingKey(inputKey)
-
-        val decodedText = mutableListOf<UShort>()
-        var text = CharArray(4)
-        readSymbols = codeReader.read(text)
-        do {
-            var data = List(4) { position ->
-                if(position + 1 > readSymbols) {
-                    UShort.MIN_VALUE
-                } else {
-                    text[position].code.toUShort()
-                }
-            }
-            for (round in 0..7) {
-                data = codeRound(decodingKey[round], data)
-                println(data)
-            }
-            data = finalOperations(decodingKey[8], data)
-            decodedText.addAll(data)
-            text = CharArray(4)
-            readSymbols = codeReader.read(text)
-        } while (readSymbols > 0)
-
-        val textWriter = File("decodedText").writer()
-        textWriter.write(String(decodedText.map { short -> Char(short) }.toCharArray()))
-        textWriter.flush()
     }
 }
