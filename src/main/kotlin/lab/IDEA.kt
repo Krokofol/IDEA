@@ -7,10 +7,12 @@ class IDEA {
     private val keyGenerator = KeyGenerator()
 
     fun code(text: String) {
-        val code = mutableListOf<UShort>()
-        var key = keyGenerator.generateStandardKey()
+        var prevKeyPattern : List<UShort> = List(8) { position ->
+            (position + 1).toUShort()
+        }
+        var key = keyGenerator.generateKey(prevKeyPattern)
         var result: List<UShort>
-        var position = 0
+        var position = -1
         do {
             var data = List(4) {
                 position++
@@ -21,19 +23,19 @@ class IDEA {
                 println(data)
             }
             result = finalOperations(key[8], data)
-            code.addAll(data)
-            key = keyGenerator.generateKey(result)
-        } while (position <= text.length)
+            prevKeyPattern = List(8) { keyPosition ->
+                if (keyPosition < 4) {
+                    prevKeyPattern[keyPosition + 4]
+                } else {
+                    result[keyPosition - 4]
+                }
+            }
+            key = keyGenerator.generateKey(prevKeyPattern)
+        } while (position < text.length)
 
-        val codeWriter = File("code").writer()
-        codeWriter.write(String(code.map { Char(it) }.toCharArray()))
-        codeWriter.flush()
-
-        val keyWriter = File("key").writer()
-        keyWriter.write(String(key[0].map { short -> Char(short) }.toCharArray()))
-        keyWriter.write(Char(key[1][0]).toString())
-        keyWriter.write(Char(key[1][1]).toString())
-        keyWriter.flush()
+        val hashWriter = File("hash").writer()
+        hashWriter.write(String(result.map { Char(it) }.toCharArray()))
+        hashWriter.flush()
     }
 
     private fun codeRound(k: List<UShort>, d: List<UShort>): List<UShort> {
