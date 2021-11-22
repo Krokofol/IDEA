@@ -26,7 +26,7 @@ object IDEA {
             }
             for (round in 0..7) {
                 data = codeRound(key[round], data)
-                println(data)
+//                println(data)
             }
             data = finalOperations(key[8], data)
             codeWriter.write(String(data.map { Char(it) }.toCharArray()))
@@ -101,7 +101,7 @@ object IDEA {
             }
             for (round in 0..7) {
                 data = codeRound(decodingKey[round], data)
-                println(data)
+//                println(data)
             }
             data = finalOperations(decodingKey[8], data)
             textWriter.write(String(data.map { short -> Char(short) }.toCharArray()))
