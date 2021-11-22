@@ -20,7 +20,7 @@ class IDEA {
             }
             for (round in 0..7) {
                 data = codeRound(key[round], data)
-                println(data)
+//                println(data)
             }
             result = finalOperations(key[8], data)
             prevKeyPattern = List(8) { keyPosition ->
